@@ -19,6 +19,9 @@
 /storage/*.key
 /storage/pail
 /vendor
+database/*.log
+database/*.bak
+!database/database.sqlite
 Homestead.json
 Homestead.yaml
 npm-debug.log
