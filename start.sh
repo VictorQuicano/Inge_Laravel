@@ -1,22 +1,10 @@
-#!/usr/bin/env bash
-set -e
-
-SQLITE_DB_PATH="/var/www/html/database/database.sqlite"
-
-if [ "$DB_CONNECTION" = "sqlite" ]; then
-  if [ ! -f "$SQLITE_DB_PATH" ]; then
-    echo "Creating SQLite database file at $SQLITE_DB_PATH"
-    touch "$SQLITE_DB_PATH"
-    chown www-data:www-data "$SQLITE_DB_PATH"
-    chmod 664 "$SQLITE_DB_PATH"
-  fi
-fi
+#!/bin/bash
 
 echo "Running composer"
-composer install --no-dev --working-dir=/var/www/html
+composer install --no-interaction
 
 echo "Generating application key..."
-php artisan key:generate --show
+php artisan key:generate
 
 echo "Caching config..."
 php artisan config:cache
@@ -29,3 +17,6 @@ php artisan migrate --force
 
 echo "Seeding DB..."
 php artisan db:seed --force
+
+echo "Starting Nginx and PHP-FPM..."
+exec supervisord -n
