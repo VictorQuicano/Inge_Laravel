@@ -69,3 +69,5 @@ USER www-data
 
 # Exponer puerto 80
 EXPOSE 80
+
+CMD ["./start.sh"]
