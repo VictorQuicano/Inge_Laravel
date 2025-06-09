@@ -70,4 +70,7 @@ USER www-data
 # Exponer puerto 80
 EXPOSE 80
 
-CMD ["./start.sh"]
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+CMD ["/start.sh"]
