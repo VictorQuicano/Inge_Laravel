@@ -1,22 +1,31 @@
 #!/bin/bash
 
-echo "Running composer"
-composer install --no-interaction
+# Crear archivo .env si no existe
+if [ ! -f /var/www/html/.env ]; then
+    cp /var/www/html/.env.example /var/www/html/.env
+fi
 
-echo "Generating application key..."
-php artisan key:generate
+# Generar APP_KEY si no existe
+if ! grep -q "APP_KEY=base64:" /var/www/html/.env; then
+    php artisan key:generate --force
+fi
 
-echo "Caching config..."
-php artisan config:cache
+# Crear base de datos SQLite si no existe
+touch /var/www/html/database/database.sqlite
+chown www-data:www-data /var/www/html/database/database.sqlite
+chmod 664 /var/www/html/database/database.sqlite
 
-echo "Caching routes..."
-php artisan route:cache
-
-echo "Running migrations..."
+# Ejecutar migraciones
 php artisan migrate --force
 
-echo "Seeding DB..."
-php artisan db:seed --force
+# Cachear configuración
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 
-echo "Starting Nginx and PHP-FPM..."
-exec supervisord -n
+# Ajustar permisos finales
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Iniciar los servicios usando el comando de la imagen base
+exec /usr/local/bin/docker-php-serversideup-entrypoint

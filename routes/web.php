@@ -12,7 +12,7 @@ Route::middleware('guest')->group(function(){
 });
 
 Route::middleware(['auth', 'verified'])->group(function(){
-    Route::get('/', Dashboard::class)->name('dashboard');
+    Route::get('/dashboard', Dashboard::class)->name('dashboard');
 });
 
 
